@@ -15,12 +15,15 @@ jobs:
         run: |
           echo "GitHub Actions is working!"
           date
+
       - name: Check API Key
         run: echo "API Key is loaded"
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
 
       - name: Generate AI Post
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
         run: |
           curl https://api.openai.com/v1/chat/completions \
             -H "Authorization: Bearer $OPENAI_API_KEY" \
@@ -34,5 +37,7 @@ jobs:
                 }
               ]
             }'
-        env:
-          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+
+      - name: Get Google News RSS
+        run: |
+          curl "https://news.google.com/rss/search?q=高校サッカー&hl=ja&gl=JP&ceid=JP:ja"
