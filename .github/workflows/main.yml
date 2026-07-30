@@ -12,44 +12,45 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Install jq
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y jq
+        run: sudo apt-get update && sudo apt-get install -y jq
 
       - name: Get Google News RSS
         run: |
           mkdir -p 投稿
-          curl -L "https://news.google.com/rss/search?q=高校サッカー&hl=ja&gl=JP&ceid=JP:ja" > 投稿/news.xml
+          curl -L -A "Mozilla/5.0" \
+          "https://news.google.com/rss/search?q=高校サッカー&hl=ja&gl=JP&ceid=JP:ja" \
+          -o 投稿/news.xml
 
       - name: Extract Latest News
         run: |
           TITLE=$(grep -oPm1 "(?<=<title>).*?(?=</title>)" 投稿/news.xml | tail -n 1)
+          echo "$TITLE"
           echo "$TITLE" > 投稿/title.txt
-          echo "最新ニュース:"
-          cat 投稿/title.txt
 
       - name: Generate AI Post
-        env:
-          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
         run: |
           TITLE=$(cat 投稿/title.txt)
 
           curl https://api.openai.com/v1/chat/completions \
-            -H "Authorization: Bearer $OPENAI_API_KEY" \
-            -H "Content-Type: application/json" \
-            -d "{
-              \"model\":\"gpt-4.1-mini\",
-              \"messages\":[
-                {
-                  \"role\":\"user\",
-                  \"content\":\"以下のニュースタイトルを元に、X用の投稿を200文字以内で作成してください。ニュースタイトル: $TITLE\"
-                }
-              ]
-            }" \
-          | jq -r '.choices[0].message.content' > 投稿/post.txt
+          -H "Authorization: Bearer $OPENAI_API_KEY" \
+          -H "Content-Type: application/json" \
+          -d "{
+            \"model\":\"gpt-4.1-mini\",
+            \"messages\":[
+              {
+                \"role\":\"user\",
+                \"content\":\"次のニュースをX投稿用に280文字以内で要約してください: $TITLE\"
+              }
+            ]
+          }" \
+          | jq -r '.choices[0].message.content' \
+          > 投稿/post.txt
 
           echo "===== 投稿 ====="
           cat 投稿/post.txt
+
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
 
       - name: Upload Files
         uses: actions/upload-artifact@v4
