@@ -22,7 +22,7 @@ jobs:
           mkdir -p 投稿
 
           curl -L \
-          "https://newsapi.org/v2/top-headlines?country=jp&pageSize=1&apiKey=$NEWS_API_KEY" \
+          "https://newsapi.org/v2/top-headlines?country=us&category=sports&pageSize=1&apiKey=$NEWS_API_KEY" \
           -o 投稿/news.json
 
           cat 投稿/news.json
@@ -47,8 +47,22 @@ jobs:
             \"messages\":[
               {
                 \"role\":\"user\",
-                \"content\":\"次のニュースをX用に280文字以内で要約してください。\n\n$TITLE\"
+                \"content\":\"次のスポーツニュースを日本語でX用に280文字以内に要約してください。ハッシュタグを3個付けてください。\n\n$TITLE\"
               }
             ]
-          }" |
-          jq -r '.choices[0].message.content'
+          }" \
+          | jq -r '.choices[0].message.content' > 投稿/post.txt
+
+          echo "===== POST ====="
+          cat 投稿/post.txt
+
+      - name: Commit Files
+        run: |
+          git config user.name "github-actions"
+          git config user.email "actions@github.com"
+
+          git add 投稿
+
+          git diff --cached --quiet || git commit -m "Auto post"
+
+          git push
