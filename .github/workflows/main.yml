@@ -8,13 +8,12 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
       - name: Install jq
         run: |
-          sudo apt-get update
-          sudo apt-get install -y jq
+          sudo apt update
+          sudo apt install -y jq
 
       - name: Get NewsAPI
         env:
@@ -23,7 +22,7 @@ jobs:
           mkdir -p 投稿
 
           curl -L \
-          "https://newsapi.org/v2/top-headlines?country=jp&category=sports&pageSize=1&apiKey=$NEWS_API_KEY" \
+          "https://newsapi.org/v2/everything?q=高校サッカー&language=ja&pageSize=1&sortBy=publishedAt&apiKey=$NEWS_API_KEY" \
           -o 投稿/news.json
 
           cat 投稿/news.json
@@ -31,7 +30,6 @@ jobs:
       - name: Extract Title
         run: |
           jq -r '.articles[0].title' 投稿/news.json > 投稿/title.txt
-
           echo "===== TITLE ====="
           cat 投稿/title.txt
 
@@ -49,18 +47,8 @@ jobs:
             \"messages\":[
               {
                 \"role\":\"user\",
-                \"content\":\"以下のニュースタイトルを元にX投稿を280文字以内で作ってください。\n\n$TITLE\"
+                \"content\":\"次のニュースをX用に280文字以内で要約してください。\n\n$TITLE\"
               }
             ]
-          }" \
-          | jq -r '.choices[0].message.content' \
-          > 投稿/post.txt
-
-          echo "===== POST ====="
-          cat 投稿/post.txt
-
-      - name: Upload Files
-        uses: actions/upload-artifact@v4
-        with:
-          name: ai-post
-          path: 投稿/
+          }" |
+          jq -r '.choices[0].message.content'
