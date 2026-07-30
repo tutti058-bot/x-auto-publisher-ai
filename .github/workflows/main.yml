@@ -11,33 +11,46 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Test
+      - name: Install jq
         run: |
-          echo "GitHub Actions is working!"
-          date
+          sudo apt-get update
+          sudo apt-get install -y jq
 
       - name: Check API Key
         run: echo "API Key is loaded"
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
 
+      - name: Get Google News RSS
+        run: |
+          mkdir -p 投稿
+          curl -L "https://news.google.com/rss/search?q=高校サッカー&hl=ja&gl=JP&ceid=JP:ja" > 投稿/news.xml
+
       - name: Generate AI Post
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
         run: |
+          PROMPT="高校サッカーの最新ニュースについて、X(Twitter)投稿を200文字以内で1つ作成してください。"
+
           curl https://api.openai.com/v1/chat/completions \
             -H "Authorization: Bearer $OPENAI_API_KEY" \
             -H "Content-Type: application/json" \
-            -d '{
-              "model":"gpt-4.1-mini",
-              "messages":[
+            -d "{
+              \"model\":\"gpt-4.1-mini\",
+              \"messages\":[
                 {
-                  "role":"user",
-                  "content":"高校サッカーの記事を200文字で書いて"
+                  \"role\":\"user\",
+                  \"content\":\"$PROMPT\"
                 }
               ]
-            }'
+            }" \
+          | jq -r '.choices[0].message.content' > 投稿/post.txt
 
-      - name: Get Google News RSS
-        run: |
-          curl "https://news.google.com/rss/search?q=高校サッカー&hl=ja&gl=JP&ceid=JP:ja"
+          echo "===== 投稿内容 ====="
+          cat 投稿/post.txt
+
+      - name: Upload Generated Files
+        uses: actions/upload-artifact@v4
+        with:
+          name: ai-post
+          path: 投稿/
