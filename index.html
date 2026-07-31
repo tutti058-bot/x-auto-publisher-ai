@@ -142,14 +142,12 @@ AIが記事を生成しています...
 fetch("posts/post.txt?t=" + Date.now())
 .then(response => response.text())
 .then(text => {
-  const lines = text.trim().split("\n");
 
-  document.getElementById("title").innerText = lines[0];
-  document.getElementById("post").innerHTML =
-    lines.slice(1).join("<br>");
+  document.getElementById("title").innerText = "最新AIニュース";
+  document.getElementById("post").innerText = text;
+
 });
 </script>
-
 <a href="#" class="button">
 続きを読む
 </a>
