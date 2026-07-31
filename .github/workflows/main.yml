@@ -56,13 +56,20 @@ jobs:
           echo "===== POST ====="
           cat 投稿/post.txt
 
-      - name: Commit Files
-        run: |
+           - name: Commit Files
+             run: |
+          mkdir -p posts
+
+          cp 投稿/post.txt posts/post.txt
+
           git config user.name "github-actions"
           git config user.email "actions@github.com"
 
           git add 投稿
+          git add posts
 
           git diff --cached --quiet || git commit -m "Auto post"
+
+          git pushet || git commit -m "Auto post"
 
           git push
