@@ -130,13 +130,25 @@ footer{
 2026/07/31
 </div>
 
-<div class="title">
-AI記事がここに表示されます
+<div class="title" id="title">
+読み込み中...
 </div>
 
-<div class="desc">
-最新ニュースをAIが要約して自動更新します。
+<div class="desc" id="post">
+AIが記事を生成しています...
 </div>
+
+<script>
+fetch("posts/post.txt?t=" + Date.now())
+.then(response => response.text())
+.then(text => {
+  const lines = text.trim().split("\n");
+
+  document.getElementById("title").innerText = lines[0];
+  document.getElementById("post").innerHTML =
+    lines.slice(1).join("<br>");
+});
+</script>
 
 <a href="#" class="button">
 続きを読む
