@@ -65,6 +65,15 @@ jobs:
           echo "===== POST ====="
           cat 投稿/post.txt
 
+      - name: Save Image URL
+        run: |
+          mkdir -p posts
+
+          jq -r '.articles[0].urlToImage' 投稿/news.json > posts/image.txt
+
+          if [ ! -s posts/image.txt ]; then
+            echo "https://placehold.co/1200x700?text=AI+NEWS" > posts/image.txt
+          fi
       - name: Commit Files
         run: |
           mkdir -p posts
