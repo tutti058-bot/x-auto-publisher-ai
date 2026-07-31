@@ -7,101 +7,108 @@
 <title>AI NEWS | AI自動ニュース</title>
 
 <style>
+
 *{
-    margin:0;
-    padding:0;
-    box-sizing:border-box;
+margin:0;
+padding:0;
+box-sizing:border-box;
 }
 
 body{
-    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
-    background:#f4f6f9;
-    color:#222;
+font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+background:#f4f6f9;
+color:#222;
 }
 
 header{
-    background:#111827;
-    color:white;
-    padding:25px;
+background:#111827;
+color:white;
+padding:25px;
 }
 
 header h1{
-    font-size:34px;
+font-size:34px;
 }
 
 header p{
-    margin-top:8px;
-    opacity:.8;
+margin-top:8px;
+opacity:.8;
 }
 
 .container{
-    width:1100px;
-    max-width:95%;
-    margin:auto;
+width:1100px;
+max-width:95%;
+margin:auto;
 }
 
 .news-grid{
-    display:grid;
-    grid-template-columns:repeat(auto-fit,minmax(320px,1fr));
-    gap:25px;
-    margin:40px 0;
+display:grid;
+grid-template-columns:1fr;
+margin:40px 0;
 }
 
 .card{
-    background:white;
-    border-radius:18px;
-    overflow:hidden;
-    box-shadow:0 10px 25px rgba(0,0,0,.08);
-    transition:.2s;
-}
-
-.card:hover{
-    transform:translateY(-6px);
+background:white;
+border-radius:18px;
+overflow:hidden;
+box-shadow:0 10px 25px rgba(0,0,0,.08);
 }
 
 .thumb{
-    height:210px;
-    background:#d8d8d8;
+width:100%;
+height:420px;
+object-fit:cover;
+background:#ddd;
 }
 
 .content{
-    padding:20px;
+padding:24px;
 }
 
 .date{
-    color:#888;
-    font-size:14px;
+color:#888;
+font-size:14px;
 }
 
 .title{
-    font-size:22px;
-    font-weight:bold;
-    margin:15px 0;
+font-size:34px;
+font-weight:bold;
+margin:15px 0;
+line-height:1.4;
 }
 
 .desc{
-    line-height:1.8;
-    color:#555;
+font-size:20px;
+line-height:1.9;
+color:#555;
+margin-top:15px;
 }
 
 .button{
-    display:inline-block;
-    margin-top:20px;
-    background:#2563eb;
-    color:white;
-    padding:12px 22px;
-    border-radius:10px;
-    text-decoration:none;
+display:inline-block;
+margin-top:25px;
+background:#2563eb;
+color:white;
+padding:14px 28px;
+border-radius:10px;
+text-decoration:none;
+font-weight:bold;
+}
+
+.button:hover{
+background:#1d4ed8;
 }
 
 footer{
-    text-align:center;
-    padding:40px;
-    color:#777;
+text-align:center;
+padding:40px;
+color:#777;
 }
+
 </style>
 
 </head>
+
 <body>
 
 <header>
@@ -122,13 +129,11 @@ footer{
 
 <div class="card">
 
-<div class="thumb"></div>
+<img id="image" class="thumb">
 
 <div class="content">
 
-<div class="date">
-2026/07/31
-</div>
+<div class="date" id="date"></div>
 
 <div class="title" id="title">
 読み込み中...
@@ -138,23 +143,7 @@ footer{
 AIが記事を生成しています...
 </div>
 
-<script>
-Promise.all([
-  fetch("posts/title.txt?t=" + Date.now()).then(r => r.text()),
-  fetch("posts/post.txt?t=" + Date.now()).then(r => r.text()),
-  fetch("posts/url.txt?t=" + Date.now()).then(r => r.text())
-])
-.then(([title, post, url]) => {
-
-  document.getElementById("title").innerText = title.trim();
-
-  document.getElementById("post").innerText = post.trim();
-
-  document.getElementById("newsLink").href = url.trim();
-
-});
-</script>
-<a id="newsLink" href="#" target="_blank" class="button">
+<a id="button" class="button" target="_blank">
 続きを読む
 </a>
 
@@ -171,6 +160,40 @@ Promise.all([
 © AI NEWS
 
 </footer>
+
+<script>
+
+document.getElementById("date").innerText=
+new Date().toLocaleDateString("ja-JP");
+
+Promise.all([
+fetch("posts/post.txt?t="+Date.now()).then(r=>r.text()),
+fetch("posts/image.txt?t="+Date.now()).then(r=>r.text()),
+fetch("posts/url.txt?t="+Date.now()).then(r=>r.text())
+])
+
+.then(([post,image,url])=>{
+
+const lines=post.trim().split("\n");
+
+document.getElementById("title").innerText=lines[0];
+
+document.getElementById("post").innerHTML=
+lines.slice(1).join("<br><br>");
+
+document.getElementById("image").src=image.trim();
+
+document.getElementById("button").href=url.trim();
+
+})
+
+.catch(()=>{
+
+document.getElementById("title").innerText="記事を取得できませんでした";
+
+});
+
+</script>
 
 </body>
 </html>
