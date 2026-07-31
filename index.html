@@ -140,14 +140,15 @@ AIが記事を生成しています...
 
 <script>
 Promise.all([
+  fetch("posts/title.txt?t=" + Date.now()).then(r => r.text()),
   fetch("posts/post.txt?t=" + Date.now()).then(r => r.text()),
   fetch("posts/url.txt?t=" + Date.now()).then(r => r.text())
 ])
-.then(([post, url]) => {
+.then(([title, post, url]) => {
 
-  document.getElementById("title").innerText = "最新AIニュース";
+  document.getElementById("title").innerText = title.trim();
 
-  document.getElementById("post").innerText = post;
+  document.getElementById("post").innerText = post.trim();
 
   document.getElementById("newsLink").href = url.trim();
 
