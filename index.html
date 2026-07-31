@@ -133,37 +133,7 @@ color:#777;
 
 <div class="container">
 
-<div class="news-grid">
-
-<div class="card">
-
-<div class="thumb">
-    <img id="image" alt="ニュース画像">
-</div>
-
-</div>
-
-<div class="content">
-
-<div class="date" id="date"></div>
-
-<div class="title" id="title">
-読み込み中...
-</div>
-
-<div class="desc" id="post">
-AIが記事を生成しています...
-</div>
-
-<a id="button" class="button" target="_blank">
-続きを読む
-</a>
-
-</div>
-
-</div>
-
-</div>
+  <div id="news-list" class="news-grid"></div>
 
 </div>
 
@@ -173,39 +143,7 @@ AIが記事を生成しています...
 
 </footer>
 
-<script>
-
-document.getElementById("date").innerText=
-new Date().toLocaleDateString("ja-JP");
-
-Promise.all([
-fetch("posts/post.txt?t="+Date.now()).then(r=>r.text()),
-fetch("posts/image.txt?t="+Date.now()).then(r=>r.text()),
-fetch("posts/url.txt?t="+Date.now()).then(r=>r.text())
-])
-
-.then(([post,image,url])=>{
-
-const lines=post.trim().split("\n");
-
-document.getElementById("title").innerText=lines[0];
-
-document.getElementById("post").innerHTML=
-lines.slice(1).join("<br><br>");
-
-document.getElementById("image").src=image.trim();
-
-document.getElementById("button").href=url.trim();
-
-})
-
-.catch(()=>{
-
-document.getElementById("title").innerText="記事を取得できませんでした";
-
-});
-
-</script>
+<script src="public/app.js"></script>
 
 </body>
 </html>
