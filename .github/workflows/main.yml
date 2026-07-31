@@ -56,13 +56,11 @@ jobs:
           }" \
           | jq -r '.choices[0].message.content' > 投稿/post.txt
 
-          echo "===== POST ====="
-          cat 投稿/post.txt
-
       - name: Commit Files
         run: |
           mkdir -p posts
 
+          cp 投稿/title.txt posts/title.txt
           cp 投稿/post.txt posts/post.txt
           cp 投稿/url.txt posts/url.txt
 
